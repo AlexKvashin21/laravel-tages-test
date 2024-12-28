@@ -23,9 +23,9 @@ class CreateTweetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string'],
-            'content' => ['required', 'string'],
-            'category_id' => ['required']
+            'username'    => ['required', 'string'],
+            'content'     => ['required', 'string'],
+            'category_id' => ['required', 'integer', 'exists:categories,id']
         ];
     }
 }
