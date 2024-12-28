@@ -20,6 +20,12 @@ class TweetController extends Controller
 
     public function store(CreateTweetRequest $request)
     {
-        dd($request->validated());
+        Tweet::query()->create([
+            'username' => $request->validated('username'),
+            'content' => $request->validated('content'),
+            'category_id' => $request->validated('category_id')
+        ]);
+
+        return redirect()->route('tweet.index');
     }
 }

@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+    nginx_tgs:
+        image: nginx:latest
+        volumes:
+            - ./:/var/www/tages
+            - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+            - ./_docker/storage/app/public/:/var/www/tages/storage/app/public/
+            - ./_docker/storage/app/public/:/var/www/tages/public/storage
+        ports:
+            - "8000:80"
+        depends_on:
+            - app_tgs
+        container_name: tages_nginx
+        networks:
+            - tages_net
+
+    app_tgs:
+        build:
+            context: ./
+            dockerfile: ./_docker/app/Dockerfile
+        volumes:
+            - ./:/var/www/tages
+            - ./_docker/storage/app/public/:/var/www/tages/storage/app/public/
+            - ./_docker/app/zzz-xdebug.ini:/usr/local/etc/php/conf.d/zzz-xdebug.ini
+            - ./_docker/storage/app/public/:/var/www/tages/public/storage
+        container_name: tages_app
+        environment:
+            PHP_IDE_CONFIG: "serverName=tages"
+        depends_on:
+            - db_tgs
+            - redis_tgs
+        networks:
+            - tages_net
+
+    db_tgs:
+        platform: linux/x86_64
+        image: mysql:5.7
+        restart: always
+        environment:
+            - MYSQL_USER=homestead
+            - MYSQL_DATABASE=homestead
+            - MYSQL_ROOT_PASSWORD=secret
+            - MYSQL_PASSWORD=secret
+        container_name: tages_db
+        command: --default-authentication-plugin=mysql_native_password --skip-name-resolve --skip-host-cache
+        ports:
+            - "3310:3306"
+        networks:
+            - tages_net
+        volumes:
+            - mysql-data111:/var/lib/mysql
+
+    redis_tgs:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            retries: 3
+            timeout: 5s
+        container_name: tages_redis
+        networks:
+            - tages_net
+
+networks:
+    tages_net:
+        driver: bridge
+
+volumes:
+    mysql-data111:
+    node_modules:

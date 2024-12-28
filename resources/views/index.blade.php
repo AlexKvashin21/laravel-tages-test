@@ -31,6 +31,9 @@
         @foreach($tweets as $tweet)
             <div class="flex flex-col space-y-1 border-2 p-2 border-black">
                 <div>
+                    Категория: {{ $tweet->category->title }}
+                </div>
+                <div>
                    Имя: {{ $tweet->username }}
                 </div>
                 <div>
@@ -43,3 +46,43 @@
         @endforeach
     </div>
 @endsection
+
+<script>
+    document.getElementById('messageForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value;
+
+        if (message) {
+            await fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ message })
+            });
+            messageInput.value = '';
+        }
+    };
+
+    async function fetchMessages() {
+        const response = await fetch('/get-messages');
+        const messages = await response.json();
+
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '';
+
+        messages.forEach(msg => {
+            const msgElement = document.createElement('div');
+            msgElement.textContent = msg.content;
+            messagesContainer.appendChild(msgElement);
+        });
+
+        // Запускаем новый запрос через 1 секунду
+        setTimeout(fetchMessages, 1000);
+    }
+
+    // Инициализация первого запроса
+    fetchMessages();
+</script>
