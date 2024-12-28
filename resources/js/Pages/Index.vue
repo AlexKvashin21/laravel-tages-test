@@ -29,7 +29,7 @@ const sendMessage = () => {
         isLoadingSendMessage.value = true
 
         axios.post(`/store?per_page=10&page=${page.value}`, form).then( res => {
-            props.tweets.unshift(res.data)
+            props.tweets.data.unshift(res.data)
         }).catch(err => {
             console.error(err)
         }).finally(() => {
@@ -55,10 +55,10 @@ const showMoreMessages = () => {
 onMounted(() => {
     Echo.channel('tweet')
         .listen('.store.tweet', (res) => {
-            const exists = props.tweets.some(obj => obj.id === res.tweet.id);
+            const exists = props.tweets.data.some(obj => obj.id === res.tweet.id);
 
             if (!exists) {
-                props.tweets.unshift(res.tweet);
+                props.tweets.data.unshift(res.tweet);
             }
         });
 })
