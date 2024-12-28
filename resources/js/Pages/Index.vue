@@ -2,6 +2,7 @@
 
 import MainLayout from "@/Layouts/MainLayout.vue";
 import {onMounted, reactive, ref} from "vue";
+import axios from "axios";
 
 const props = defineProps({
     categories: {
@@ -12,7 +13,10 @@ const props = defineProps({
     },
 });
 
-const isLoading = ref(false)
+const isLoadingSendMessage = ref(false)
+const isLoadingTweets = ref(false)
+
+const page = ref(1)
 
 const form = reactive({
     category_id: null,
@@ -21,17 +25,31 @@ const form = reactive({
 });
 
 const sendMessage = () => {
-    if (form.category_id && form.username && form.content && !isLoading.value) {
-        isLoading.value = true
+    if (form.category_id && form.username && form.content && !isLoadingSendMessage.value) {
+        isLoadingSendMessage.value = true
 
-        axios.post('/store', form).then( res => {
+        axios.post(`/store?per_page=10&page=${page.value}`, form).then( res => {
             props.tweets.unshift(res.data)
         }).catch(err => {
             console.error(err)
         }).finally(() => {
-            isLoading.value = false;
+            isLoadingSendMessage.value = false;
         })
     }
+}
+
+const showMoreMessages = () => {
+    page.value += 1
+
+    isLoadingTweets.value = true
+
+    axios.get(`/more?per_page=10&page=${page.value}`).then(res  => {
+        props.tweets.data.push(...res.data.data)
+    }).catch(err => {
+        console.error(err)
+    }).finally(() => {
+        isLoadingTweets.value = false;
+    })
 }
 
 onMounted(() => {
@@ -69,14 +87,17 @@ onMounted(() => {
                     <input type="text" name="content" required v-model="form.content">
                 </label>
 
-                <button type="submit" class="mt-2 p-1 border-black border-2 btn btn-primary">{{isLoading ? 'Загрузка' : 'Отправить' }}  </button>
+                <button type="submit" class="mt-2 p-1 border-black border-2 btn btn-primary">{{isLoadingSendMessage ? 'Загрузка' : 'Отправить' }}  </button>
             </form>
         </div>
 
         <h2 class="my-5 text-center text-5xl">Твиты</h2>
 
         <div class="flex flex-col space-y-2">
-            <div v-for="tweet in tweets" class="flex flex-col space-y-1 border-2 p-2 border-black">
+            <div v-for="tweet in tweets.data" class="flex flex-col space-y-1 border-2 p-2 border-black">
+                <div>
+                    ID: {{tweet.id}}
+                </div>
                 <div>
                     Категория: {{ tweet.category }}
                 </div>
@@ -91,6 +112,15 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <button
+            v-if="props.tweets.last_page > page"
+            @click.prevent="showMoreMessages"
+            class="mt-2 p-1 border-black border-2 btn btn-primary block mx-auto"
+        >
+            {{isLoadingTweets ? 'Загрузка' : 'Больше' }}
+        </button>
+
     </MainLayout>
 </template>
 

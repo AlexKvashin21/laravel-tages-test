@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\CategoryServiceContract;
 use App\Contracts\Services\TweetServiceContract;
 use App\DTO\Tweet\CreateTweetDTO;
-use App\Events\StoreTweetEvent;
+use App\Filters\CategoryFilter;
+use App\Filters\TweetFilter;
 use App\Http\Requests\CreateTweetRequest;
+use App\Http\Requests\GetTweetsRequest;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\PaginatedTweetResource;
 use App\Http\Resources\TweetResource;
 use App\Library\Serializer\Serializer;
-use App\Models\Category;
-use App\Models\Tweet;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -18,17 +21,52 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 class TweetController extends Controller
 {
     public function __construct(
-        private readonly TweetServiceContract $service
+        private readonly TweetServiceContract $service,
+        private readonly CategoryServiceContract $categoryService,
     )
     {
     }
 
-    public function index(): Response
+    /**
+     * @param GetTweetsRequest $request
+     * @return Response
+     */
+    public function index(GetTweetsRequest $request): Response
     {
-        $categories = Category::all();
-        $tweets = Tweet::query()->latest()->get();
+        $filterCategory = new CategoryFilter([]);
+        $filterTweet = new TweetFilter([
+            ...$request->validated('filters') ?? []
+        ]);
 
-        return Inertia::render('Index', ['categories' => $categories, 'tweets' => TweetResource::collection($tweets)->resolve()]);
+        $categories = $this->categoryService->list($filterCategory);
+
+        $tweets = $this->service->paginatedList(
+            $filterTweet,
+            $request->validated('page') ?? 1,
+            $request->validated('per_page') ?? 10
+        );
+
+        return Inertia::render('Index',
+            [
+                'categories' => CategoryResource::collection($categories)->resolve() ,
+                'tweets' => PaginatedTweetResource::make($tweets)->resolve()
+            ]);
+    }
+
+
+    public function getMoreTweets(GetTweetsRequest $request): array
+    {
+        $filterTweet = new TweetFilter([
+            ...$request->validated('filters') ?? []
+        ]);
+
+        $tweets = $this->service->paginatedList(
+            $filterTweet,
+            $request->validated('page') ?? 1,
+            $request->validated('per_page') ?? 10
+        );
+
+        return PaginatedTweetResource::make($tweets)->resolve();
     }
 
     /**
@@ -37,7 +75,7 @@ class TweetController extends Controller
      * @return array
      * @throws ExceptionInterface
      */
-    public function store(CreateTweetRequest $request, Serializer $serializer)
+    public function store(CreateTweetRequest $request, Serializer $serializer): array
     {
         $createTweetDTO = $serializer->fromArray(
             $request->validated(),

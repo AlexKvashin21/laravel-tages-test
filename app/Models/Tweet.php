@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 
 class Tweet extends Model
 {
+    use Filterable;
+
     protected $fillable = [
         'username',
         'content',
