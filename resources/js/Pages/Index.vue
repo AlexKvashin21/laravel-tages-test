@@ -1,12 +1,7 @@
 <script setup>
 
 import MainLayout from "@/Layouts/MainLayout.vue";
-import {useForm} from "@inertiajs/vue3";
-import TextInput from "@/Components/TextInput.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import InputError from "@/Components/InputError.vue";
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 
 const props = defineProps({
     categories: {
@@ -17,6 +12,8 @@ const props = defineProps({
     },
 });
 
+const isLoading = ref(false)
+
 const form = reactive({
     category_id: null,
     username: null,
@@ -24,17 +21,39 @@ const form = reactive({
 });
 
 const sendMessage = () => {
-    console.log(form)
+    if (form.category_id && form.username && form.content && !isLoading.value) {
+        isLoading.value = true
 
-    axios.post('/store', form).then( res => {
-        props.tweets.unshift(res.data)
-    })
+        axios.post('/store', form).then( res => {
+            props.tweets.unshift(res.data)
+
+            isLoading.value = false
+        }).catch(err => {
+            console.error(err)
+
+            isLoading.value = false
+        })
+    }
 }
+
+onMounted(() => {
+    Echo.channel('tweet')
+        .listen('.store.tweet', (res) => {
+            const exists = props.tweets.some(obj => obj.id === res.tweet.id);
+
+            if (!exists) {
+                props.tweets.unshift(res.tweet);
+            }
+        });
+})
 
 </script>
 
 <template>
     <MainLayout>
+
+        <h2 class="mb-5 text-center text-5xl">Отправить сообщение</h2>
+
         <div class="flex flex-col space-y-1 border-2 border-black p-2">
             <form @submit.prevent="sendMessage">
                 <div class="flex flex-col">
@@ -52,7 +71,7 @@ const sendMessage = () => {
                     <input type="text" name="content" required v-model="form.content">
                 </label>
 
-                <button type="submit" class="btn btn-primary">Отправить</button>
+                <button type="submit" class="mt-2 p-1 border-black border-2 btn btn-primary">{{isLoading ? 'Загрузка' : 'Отправить' }}  </button>
             </form>
         </div>
 
@@ -76,3 +95,4 @@ const sendMessage = () => {
         </div>
     </MainLayout>
 </template>
+

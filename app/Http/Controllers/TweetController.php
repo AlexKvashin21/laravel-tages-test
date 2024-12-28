@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\StoreTweetEvent;
 use App\Http\Requests\CreateTweetRequest;
 use App\Http\Resources\TweetResource;
 use App\Models\Category;
 use App\Models\Tweet;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,6 +27,8 @@ class TweetController extends Controller
             'content' => $request->validated('content'),
             'category_id' => $request->validated('category_id')
         ]);
+
+        broadcast(new StoreTweetEvent($tweet));
 
         return TweetResource::make($tweet)->resolve();
     }
