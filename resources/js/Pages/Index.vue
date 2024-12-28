@@ -93,7 +93,7 @@ onMounted(() => {
 
         <h2 class="my-5 text-center text-5xl">Твиты</h2>
 
-        <div class="flex flex-col space-y-2">
+        <div v-if="tweets.data.length > 0" class="flex flex-col space-y-2">
             <div v-for="tweet in tweets.data" class="flex flex-col space-y-1 border-2 p-2 border-black">
                 <div>
                     ID: {{tweet.id}}
@@ -112,6 +112,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <h3 v-else class="text-center text-3xl">Твитов пока нет!</h3>
 
         <button
             v-if="props.tweets.last_page > page"
