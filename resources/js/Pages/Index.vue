@@ -26,12 +26,10 @@ const sendMessage = () => {
 
         axios.post('/store', form).then( res => {
             props.tweets.unshift(res.data)
-
-            isLoading.value = false
         }).catch(err => {
             console.error(err)
-
-            isLoading.value = false
+        }).finally(() => {
+            isLoading.value = false;
         })
     }
 }
