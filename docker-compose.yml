@@ -70,3 +70,9 @@ services:
         volumes:
             - ./:/var/www/laravel
         entrypoint: ["php", "/var/www/laravel/artisan"]
+
+    npm:
+        build:
+            dockerfile: _docker/dockerfiles/node.Dockerfile
+        volumes:
+            - ./:/var/www/laravel
