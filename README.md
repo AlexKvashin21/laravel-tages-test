@@ -1,4 +1,10 @@
-## Установка
+## Документация
+
+Backend (Laravel 11 + Inertia.js + Pusher Websockets)
+
+Frontend (Vue 3 + Tailwind + Inertia.js + Axios)
+
+## Сборка
 
 1. Скопировать .env.example 
 
