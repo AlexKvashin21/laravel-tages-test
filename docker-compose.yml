@@ -38,6 +38,8 @@ services:
             - "8080:80"
         env_file:
             - ./_docker/env/phpmyadmin.env
+        depends_on:
+            - mysql
 
     redis:
         image: redis:alpine
