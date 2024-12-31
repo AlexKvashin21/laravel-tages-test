@@ -56,12 +56,14 @@ services:
         depends_on:
             - php
 
+    #docker-compose run --rm composer *command*
     composer:
         build:
             dockerfile: _docker/dockerfiles/composer.Dockerfile
         volumes:
             - ./:/var/www/laravel
 
+    #docker-compose run --rm artisan *command*
     artisan:
         build:
             dockerfile: _docker/dockerfiles/php.Dockerfile
