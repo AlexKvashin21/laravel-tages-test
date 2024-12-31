@@ -11,3 +11,5 @@
 5. `docker-compose run --rm npm install`
 
 6. `docker-compose run --rm npm run build`
+
+7. Перейти по адресу http://localhost:8000/
