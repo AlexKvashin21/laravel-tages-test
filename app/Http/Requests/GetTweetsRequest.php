@@ -24,7 +24,8 @@ class GetTweetsRequest extends FormRequest
     {
         return [
             'page'              => ['nullable', 'integer:cast', 'min:1'],
-            'per_page'          => ['nullable', 'integer:cast', 'min:1']
+            'per_page'          => ['nullable', 'integer:cast', 'min:1'],
+            'filters'           => ['nullable']
         ];
     }
 }

@@ -53,7 +53,10 @@ class TweetController extends Controller
             ]);
     }
 
-
+    /**
+     * @param GetTweetsRequest $request
+     * @return array
+     */
     public function getMoreTweets(GetTweetsRequest $request): array
     {
         $filterTweet = new TweetFilter([

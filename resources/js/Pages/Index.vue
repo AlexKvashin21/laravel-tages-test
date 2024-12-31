@@ -19,12 +19,18 @@ const isLoadingTweets = ref(false)
 const page = ref(1)
 
 const form = reactive({
-    category_id: null,
+    category_id: 0,
     username: null,
     content: null,
 });
 
 const sendMessage = () => {
+    if (form.category_id === 0) {
+        alert('Выберете категорию!')
+
+        return
+    }
+
     if (form.category_id && form.username && form.content && !isLoadingSendMessage.value) {
         isLoadingSendMessage.value = true
 
@@ -75,16 +81,17 @@ onMounted(() => {
                 <div class="flex flex-col">
                     <label for="category">Категория</label>
                     <select v-model="form.category_id" id="category" name="category_id" class="form-control" required>
+                        <option :value="0" disabled selected hidden>Выберите категорию</option>
                         <option v-for="category in categories" :value="category.id">{{ category.title }}</option>
                     </select>
                 </div>
                 <label class="flex flex-col">
                     Имя
-                    <input type="text" name="username" required v-model="form.username">
+                    <input type="text" name="username" required v-model="form.username" placeholder="Ваше имя">
                 </label>
                 <label class="flex flex-col">
                     Сообщение
-                    <input type="text" name="content" required v-model="form.content">
+                    <input type="text" name="content" required v-model="form.content" placeholder="Ваш текст">
                 </label>
 
                 <button type="submit" class="mt-2 p-1 border-black border-2 btn btn-primary">{{isLoadingSendMessage ? 'Загрузка' : 'Отправить' }}  </button>
