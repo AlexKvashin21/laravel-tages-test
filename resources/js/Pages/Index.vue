@@ -36,6 +36,10 @@ const sendMessage = () => {
 
         axios.post(`/store?per_page=10&page=${page.value}`, form).then( res => {
             props.tweets.data.unshift(res.data)
+
+            form.category_id = 0
+            form.username = null
+            form.content = null
         }).catch(err => {
             console.error(err)
         }).finally(() => {
