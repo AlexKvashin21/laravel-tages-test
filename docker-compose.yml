@@ -10,8 +10,10 @@ services:
             - ./_docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
             - ./:/var/www/laravel
         depends_on:
+            - queue
             - phpmyadmin
             - mysql
+            - redis
             - php
 
     php:
@@ -36,6 +38,21 @@ services:
             - "8080:80"
         env_file:
             - ./_docker/env/phpmyadmin.env
+
+    redis:
+        image: redis:alpine
+        ports:
+            - "6389:6379"
+
+    queue:
+        build:
+            dockerfile: _docker/dockerfiles/php.Dockerfile
+        command: php artisan queue:work
+        volumes:
+            - ./:/var/www/laravel
+        restart: always
+        depends_on:
+            - php
 
     composer:
         build:
