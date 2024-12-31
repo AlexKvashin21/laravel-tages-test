@@ -71,6 +71,7 @@ services:
             - ./:/var/www/laravel
         entrypoint: ["php", "/var/www/laravel/artisan"]
 
+    #docker-compose run --rm npm *command*
     npm:
         build:
             dockerfile: _docker/dockerfiles/node.Dockerfile
