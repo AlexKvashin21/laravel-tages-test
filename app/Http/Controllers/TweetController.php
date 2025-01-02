@@ -75,10 +75,10 @@ class TweetController extends Controller
     /**
      * @param CreateTweetRequest $request
      * @param Serializer $serializer
-     * @return array
+     * @return bool
      * @throws ExceptionInterface
      */
-    public function store(CreateTweetRequest $request, Serializer $serializer): array
+    public function store(CreateTweetRequest $request, Serializer $serializer): bool
     {
         $createTweetDTO = $serializer->fromArray(
             $request->validated(),
@@ -86,8 +86,8 @@ class TweetController extends Controller
             new CamelCaseToSnakeCaseNameConverter
         );
 
-        $tweet = $this->service->create($createTweetDTO);
+        $this->service->create($createTweetDTO);
 
-        return TweetResource::make($tweet)->resolve();
+        return true;
     }
 }

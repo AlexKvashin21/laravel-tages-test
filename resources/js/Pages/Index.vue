@@ -3,6 +3,10 @@
 import MainLayout from "@/Layouts/MainLayout.vue";
 import {onMounted, reactive, ref} from "vue";
 import axios from "axios";
+import { createToaster } from "@meforma/vue-toaster";
+import {format} from "date-fns";
+import { ru } from 'date-fns/locale';
+
 
 const props = defineProps({
     categories: {
@@ -11,6 +15,10 @@ const props = defineProps({
     tweets: {
         type: Array,
     },
+});
+
+const toaster = createToaster({
+    position: 'top-right'
 });
 
 const isLoadingSendMessage = ref(false)
@@ -26,22 +34,24 @@ const form = reactive({
 
 const sendMessage = () => {
     if (form.category_id === 0) {
-        alert('Выберете категорию!')
-
-        return
+        return toaster.error('Выберете категорию!')
     }
 
     if (form.category_id && form.username && form.content && !isLoadingSendMessage.value) {
         isLoadingSendMessage.value = true
 
-        axios.post(`/store?per_page=10&page=${page.value}`, form).then( res => {
-            props.tweets.data.unshift(res.data)
+        axios.post(`/store`, form).then( res => {
+            if (res) {
+                toaster.success('Сообщение отправлено')
+            }
 
             form.category_id = 0
             form.username = null
             form.content = null
         }).catch(err => {
             console.error(err)
+
+            toaster.error('Произошла ошибка')
         }).finally(() => {
             isLoadingSendMessage.value = false;
         })
@@ -62,16 +72,16 @@ const showMoreMessages = () => {
     })
 }
 
+const formattedDate = (createdAt) => {
+    return format(new Date(createdAt), 'd MMMM yyyy HH:mm', {locale: ru});
+}
+
 onMounted(() => {
     Echo.channel('tweet')
         .listen('.store.tweet', (res) => {
-            const exists = props.tweets.data.some(obj => obj.id === res.tweet.id);
-
-            if (!exists) {
-                props.tweets.data.unshift(res.tweet);
-            }
+            props.tweets.data.unshift(res.tweet);
         });
-})
+});
 
 </script>
 
@@ -119,7 +129,7 @@ onMounted(() => {
                     Сообщение: {{ tweet.content }}
                 </div>
                 <div>
-                    Дата: {{ tweet.created_at }}
+                    Дата: {{ formattedDate(tweet.created_at) }}
                 </div>
             </div>
         </div>

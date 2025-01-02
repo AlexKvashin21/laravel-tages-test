@@ -16,8 +16,6 @@ interface TweetServiceContract
     public function paginatedList(TweetFilter $filter, int $page = 1, int $perPage = 10): LengthAwarePaginator;
     public function list(TweetFilter $filter): Collection;
     public function get(int $id): Tweet;
-
-//    public function update(UpdateTweetDTO $updateTweetDTO): bool;
-    public function create(CreateTweetDTO $createTweetDTO): Tweet;
+    public function create(CreateTweetDTO $createTweetDTO): void;
     public function delete(int $id): bool;
 }

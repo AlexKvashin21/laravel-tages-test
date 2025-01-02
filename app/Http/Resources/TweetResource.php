@@ -18,7 +18,7 @@ class TweetResource extends JsonResource
             'id'             => $this->id,
             'username'       => $this->username,
             'content'        => $this->content,
-            'created_at'     => $this->created_at->diffForHumans(),
+            'created_at'     => $this->created_at,
 
             'category'       => !empty($this->category) ? $this->category->title : null
         ];

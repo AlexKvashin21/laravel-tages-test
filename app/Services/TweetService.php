@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Contracts\Repositories\TweetRepositoryContract;
 use App\Contracts\Services\TweetServiceContract;
 use App\DTO\Tweet\CreateTweetDTO;
-use App\Events\StoreTweetEvent;
 use App\Filters\TweetFilter;
+use App\Jobs\TweetJob;
 use App\Models\Tweet;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -50,15 +50,11 @@ readonly class TweetService implements TweetServiceContract
 
     /**
      * @param CreateTweetDTO $createTweetDTO
-     * @return Tweet
+     * @return void
      */
-    public function create(CreateTweetDTO $createTweetDTO): Tweet
+    public function create(CreateTweetDTO $createTweetDTO): void
     {
-        $tweet = $this->repository->create($createTweetDTO);
-
-        broadcast(new StoreTweetEvent($tweet));
-
-        return $tweet;
+        dispatch(new TweetJob($createTweetDTO, $this->repository));
     }
 
     /**
