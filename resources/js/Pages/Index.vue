@@ -25,6 +25,7 @@ const isLoadingSendMessage = ref(false)
 const isLoadingTweets = ref(false)
 
 const page = ref(1)
+const perPage = ref(10)
 
 const form = reactive({
     category_id: 0,
@@ -63,8 +64,9 @@ const showMoreMessages = () => {
 
     isLoadingTweets.value = true
 
-    axios.get(`/more?per_page=10&page=${page.value}`).then(res  => {
+    axios.get(`/more?per_page=${perPage.value}&page=${page.value}`).then(res  => {
         props.tweets.data.push(...res.data.data)
+        props.tweets.last_page = res.data.last_page
     }).catch(err => {
         console.error(err)
     }).finally(() => {
@@ -136,7 +138,7 @@ onMounted(() => {
         <h3 v-else class="text-center text-3xl">Твитов пока нет!</h3>
 
         <button
-            v-if="props.tweets.last_page > page"
+            v-if="tweets.last_page > page"
             @click.prevent="showMoreMessages"
             class="mt-2 p-1 border-black border-2 btn btn-primary block mx-auto"
         >
