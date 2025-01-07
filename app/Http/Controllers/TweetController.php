@@ -57,7 +57,7 @@ class TweetController extends Controller
      * @param GetTweetsRequest $request
      * @return array
      */
-    public function getMoreTweets(GetTweetsRequest $request): array
+    public function list(GetTweetsRequest $request): array
     {
         $filterTweet = new TweetFilter([
             ...$request->validated('filters') ?? []

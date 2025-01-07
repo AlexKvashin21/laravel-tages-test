@@ -67,7 +67,7 @@ const showMoreMessages = () => {
 
     isLoadingTweets.value = true
 
-    axios.get(`/more?per_page=${perPage.value}&page=${page.value}`).then(res => {
+    axios.get(`/list?per_page=${perPage.value}&page=${page.value}`).then(res => {
         props.tweets.data.push(...res.data.data)
         props.tweets.last_page = res.data.last_page
     }).catch(err => {
