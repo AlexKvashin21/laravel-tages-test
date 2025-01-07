@@ -6,14 +6,17 @@ import axios from "axios";
 import {createToaster} from "@meforma/vue-toaster";
 import {format} from "date-fns";
 import {ru} from 'date-fns/locale';
+import MoreText from "@/Components/MoreText.vue";
 
 
 const props = defineProps({
     categories: {
         type: Array,
+        required: true
     },
     tweets: {
         type: Object,
+        required: true
     },
 });
 
@@ -76,6 +79,17 @@ const showMoreMessages = () => {
 
 const formattedDate = (createdAt) => {
     return format(new Date(createdAt), 'd MMMM yyyy HH:mm', {locale: ru});
+}
+
+const isOverflow = (id) => {
+    setTimeout(() => {
+        const a = document.getElementById(`content-${id}`)
+
+        console.log(a)
+    }, 2000)
+
+
+    return false
 }
 
 onMounted(() => {
@@ -179,8 +193,9 @@ onMounted(() => {
         <div v-if="tweets.data.length > 0" class="flex flex-col space-y-2">
 
             <article
-                class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-lg sm:p-6"
+                class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-lg sm:p-6 overflow-hidden "
                 v-for="tweet in tweets.data"
+                :key="`tweet-${tweet.id}`"
             >
                 <div class="rounded-[10px] bg-white">
                     <time datetime="2022-10-10" class="block text-xs text-gray-500">
@@ -195,10 +210,7 @@ onMounted(() => {
                         </span>
                     </h3>
 
-                    <span class="mt-0.5 text-lg text-gray-900">
-                        {{ tweet.content }}
-                    </span>
-
+                    <MoreText :text="tweet.content"/>
 
                     <div class="mt-3 flex flex-wrap gap-1">
                        <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
