@@ -2,43 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Services\CategoryServiceContract;
 use App\Contracts\Services\TweetServiceContract;
 use App\DTO\Tweet\CreateTweetDTO;
-use App\Filters\CategoryFilter;
 use App\Filters\TweetFilter;
 use App\Http\Requests\CreateTweetRequest;
 use App\Http\Requests\GetTweetsRequest;
-use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PaginatedTweetResource;
-use App\Http\Resources\TweetResource;
 use App\Library\Serializer\Serializer;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class TweetController extends Controller
 {
     public function __construct(
-        private readonly TweetServiceContract $service,
-        private readonly CategoryServiceContract $categoryService,
+        private readonly TweetServiceContract $service
     )
     {
     }
 
     /**
      * @param GetTweetsRequest $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function index(GetTweetsRequest $request): Response
+    public function index(GetTweetsRequest $request): JsonResponse
     {
-        $filterCategory = new CategoryFilter([]);
         $filterTweet = new TweetFilter([
             ...$request->validated('filters') ?? []
         ]);
-
-        $categories = $this->categoryService->list($filterCategory);
 
         $tweets = $this->service->paginatedList(
             $filterTweet,
@@ -46,18 +37,14 @@ class TweetController extends Controller
             $request->validated('per_page') ?? 10
         );
 
-        return Inertia::render('Index',
-            [
-                'categories' => CategoryResource::collection($categories)->resolve() ,
-                'tweets' => PaginatedTweetResource::make($tweets)->resolve()
-            ]);
+        return response()->json($tweets);
     }
 
     /**
      * @param GetTweetsRequest $request
-     * @return array
+     * @return JsonResponse
      */
-    public function list(GetTweetsRequest $request): array
+    public function list(GetTweetsRequest $request): JsonResponse
     {
         $filterTweet = new TweetFilter([
             ...$request->validated('filters') ?? []
@@ -69,16 +56,16 @@ class TweetController extends Controller
             $request->validated('per_page') ?? 10
         );
 
-        return PaginatedTweetResource::make($tweets)->resolve();
+        return response()->json(PaginatedTweetResource::make($tweets)->resolve());
     }
 
     /**
      * @param CreateTweetRequest $request
      * @param Serializer $serializer
-     * @return bool
+     * @return JsonResponse
      * @throws ExceptionInterface
      */
-    public function store(CreateTweetRequest $request, Serializer $serializer): bool
+    public function store(CreateTweetRequest $request, Serializer $serializer): JsonResponse
     {
         $createTweetDTO = $serializer->fromArray(
             $request->validated(),
@@ -88,6 +75,6 @@ class TweetController extends Controller
 
         $this->service->create($createTweetDTO);
 
-        return true;
+        return response()->json(true);
     }
 }

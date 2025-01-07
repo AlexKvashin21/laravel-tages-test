@@ -1,31 +1,25 @@
 <script setup>
 
 import MainLayout from "@/Layouts/MainLayout.vue";
-import {onMounted, reactive, ref} from "vue";
+import {onBeforeMount, reactive, ref} from "vue";
 import axios from "axios";
 import {createToaster} from "@meforma/vue-toaster";
 import {format} from "date-fns";
 import {ru} from 'date-fns/locale';
 import MoreText from "@/Components/MoreText.vue";
-
-
-const props = defineProps({
-    categories: {
-        type: Array,
-        required: true
-    },
-    tweets: {
-        type: Object,
-        required: true
-    },
-});
+import Spinner from "@/Components/Spinner.vue";
 
 const toaster = createToaster({
     position: 'top-right'
 });
 
+const categories = ref([])
+const tweets = ref({})
+
 const isLoadingSendMessage = ref(false)
 const isLoadingTweets = ref(false)
+const isLoadingCategories = ref(false)
+const isLoadingMoreTweets = ref(false)
 
 const page = ref(1)
 const perPage = ref(10)
@@ -44,7 +38,7 @@ const sendMessage = () => {
     if (form.category_id && form.username && form.content && !isLoadingSendMessage.value) {
         isLoadingSendMessage.value = true
 
-        axios.post(`/store`, form).then(res => {
+        axios.post(`/api/tweet`, form).then(res => {
             if (res) {
                 toaster.success('Сообщение отправлено')
             }
@@ -65,15 +59,16 @@ const sendMessage = () => {
 const showMoreMessages = () => {
     page.value += 1
 
-    isLoadingTweets.value = true
+    isLoadingMoreTweets.value = true
 
-    axios.get(`/list?per_page=${perPage.value}&page=${page.value}`).then(res => {
-        props.tweets.data.push(...res.data.data)
-        props.tweets.last_page = res.data.last_page
+    axios.get(`/api/tweet?per_page=${perPage.value}&page=${page.value}`).then(res => {
+        tweets.value.data.push(...res.data.data)
+        tweets.value.last_page = res.data.last_page
     }).catch(err => {
         console.error(err)
+        page.value -= 1
     }).finally(() => {
-        isLoadingTweets.value = false;
+        isLoadingMoreTweets.value = false;
     })
 }
 
@@ -81,23 +76,39 @@ const formattedDate = (createdAt) => {
     return format(new Date(createdAt), 'd MMMM yyyy HH:mm', {locale: ru});
 }
 
-const isOverflow = (id) => {
-    setTimeout(() => {
-        const a = document.getElementById(`content-${id}`)
+const getAllCategories = async () => {
+    isLoadingCategories.value = true
 
-        console.log(a)
-    }, 2000)
-
-
-    return false
+    axios.get('api/category/all').then(res => {
+        categories.value = res.data
+    }).catch(err => {
+        console.error(err)
+    }).finally(() => {
+        isLoadingCategories.value = false;
+    })
 }
 
-onMounted(() => {
+const getTweets = async () => {
+    isLoadingTweets.value = true
+
+    await axios.get('api/tweet').then(res => {
+        tweets.value = res.data
+    }).catch(err => {
+        console.error(err)
+    }).finally(() => {
+        isLoadingTweets.value = false;
+    })
+}
+
+onBeforeMount(async () => {
+    await getAllCategories()
+    await getTweets()
+
     Echo.channel('tweet')
         .listen('.store.tweet', (res) => {
-            props.tweets.data.unshift(res.tweet);
+            tweets.value.data.unshift(res.tweet);
         });
-});
+})
 
 </script>
 
@@ -190,7 +201,11 @@ onMounted(() => {
             </span>
         </span>
 
-        <div v-if="tweets.data.length > 0" class="flex flex-col space-y-2">
+        <div v-if="isLoadingTweets">
+            <Spinner class="w-[50px] mx-auto"/>
+        </div>
+
+        <div v-else-if="tweets?.data?.length > 0" class="flex flex-col space-y-2">
 
             <article
                 class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-lg sm:p-6 overflow-hidden "
@@ -227,10 +242,10 @@ onMounted(() => {
             <button
                 v-if="tweets.last_page > page"
                 @click.prevent="showMoreMessages"
-                :disabled="isLoadingTweets"
+                :disabled="isLoadingMoreTweets"
                 class="mt-2 md:mt-4 inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
             >
-                {{ isLoadingTweets ? 'Загрузка' : 'Больше' }}
+                {{ isLoadingMoreTweets ? 'Загрузка' : 'Больше' }}
             </button>
         </div>
 
