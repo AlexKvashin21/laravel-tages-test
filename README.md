@@ -1,8 +1,8 @@
 ## Документация
 
-### Backend (Laravel 11 + Inertia.js + Mysql + Redis + Pusher Websockets)
+### Backend (Laravel 11 + Mysql + Redis + Pusher Websockets)
 
-### Frontend (Vue 3 + Tailwind + Inertia.js + Axios)
+### Frontend (Vue 3 + Tailwind + Axios)
 
 ## Сборка
 
