@@ -3,9 +3,9 @@
 import MainLayout from "@/Layouts/MainLayout.vue";
 import {onMounted, reactive, ref} from "vue";
 import axios from "axios";
-import { createToaster } from "@meforma/vue-toaster";
+import {createToaster} from "@meforma/vue-toaster";
 import {format} from "date-fns";
-import { ru } from 'date-fns/locale';
+import {ru} from 'date-fns/locale';
 
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
         type: Array,
     },
     tweets: {
-        type: Array,
+        type: Object,
     },
 });
 
@@ -41,7 +41,7 @@ const sendMessage = () => {
     if (form.category_id && form.username && form.content && !isLoadingSendMessage.value) {
         isLoadingSendMessage.value = true
 
-        axios.post(`/store`, form).then( res => {
+        axios.post(`/store`, form).then(res => {
             if (res) {
                 toaster.success('Сообщение отправлено')
             }
@@ -64,7 +64,7 @@ const showMoreMessages = () => {
 
     isLoadingTweets.value = true
 
-    axios.get(`/more?per_page=${perPage.value}&page=${page.value}`).then(res  => {
+    axios.get(`/more?per_page=${perPage.value}&page=${page.value}`).then(res => {
         props.tweets.data.push(...res.data.data)
         props.tweets.last_page = res.data.last_page
     }).catch(err => {
@@ -90,60 +90,137 @@ onMounted(() => {
 <template>
     <MainLayout>
 
-        <h2 class="mb-5 text-center text-5xl">Отправить сообщение</h2>
+        <span class="relative flex justify-center mb-2 md:mb-4">
+            <div
+                class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-transparent bg-gradient-to-r from-transparent via-gray-500 to-transparent opacity-75"/>
+            <span class="relative z-10 bg-white px-6 text-2xl md:text-3xl xl:text-5xl font-light text-gray-800">
+                Отправить сообщение
+            </span>
+        </span>
 
-        <div class="flex flex-col space-y-1 border-2 border-black p-2">
-            <form @submit.prevent="sendMessage">
-                <div class="flex flex-col">
-                    <label for="category">Категория</label>
-                    <select v-model="form.category_id" id="category" name="category_id" class="form-control" required>
-                        <option :value="0" disabled selected hidden>Выберите категорию</option>
-                        <option v-for="category in categories" :value="category.id">{{ category.title }}</option>
+        <div
+            class="mx-auto my-0 h-full w-full rounded-[10px] bg-white drop-shadow-[0px_1px_3px_rgba(0,0,0,0.1)] dark:bg-black-1">
+            <div class="mx-auto rounded-lg p-4 max-[1600px]:scale-100 bg-white">
+                <form @submit.prevent="sendMessage" class="flex flex-col space-y-4">
+                    <select
+                        v-model="form.category_id"
+                        name="category"
+                        id="category"
+                        class="w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
+                    >
+                        <option :value="0" disabled selected hidden>
+                            Выберите категорию
+                        </option>
+                        <option v-for="category in categories" :value="category.id">
+                            {{ category.title }}
+                        </option>
                     </select>
-                </div>
-                <label class="flex flex-col">
-                    Имя
-                    <input type="text" name="username" required v-model="form.username" placeholder="Ваше имя">
-                </label>
-                <label class="flex flex-col">
-                    Сообщение
-                    <input type="text" name="content" required v-model="form.content" placeholder="Ваш текст">
-                </label>
 
-                <button type="submit" class="mt-2 p-1 border-black border-2 btn btn-primary">{{isLoadingSendMessage ? 'Загрузка' : 'Отправить' }}  </button>
-            </form>
-        </div>
+                    <label
+                        for="username"
+                        class="relative block rounded-md border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+                    >
+                        <input
+                            v-model="form.username"
+                            type="text"
+                            id="username"
+                            class="w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0"
+                            placeholder="Имя"
+                            required
+                        />
 
-        <h2 class="my-5 text-center text-5xl">Твиты</h2>
+                        <span
+                            class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs"
+                        >
+                            Имя
+                        </span>
+                    </label>
 
-        <div v-if="tweets.data.length > 0" class="flex flex-col space-y-2">
-            <div v-for="tweet in tweets.data" class="flex flex-col space-y-1 border-2 p-2 border-black">
-                <div>
-                    ID: {{tweet.id}}
-                </div>
-                <div>
-                    Категория: {{ tweet.category }}
-                </div>
-                <div>
-                    Имя: {{ tweet.username }}
-                </div>
-                <div>
-                    Сообщение: {{ tweet.content }}
-                </div>
-                <div>
-                    Дата: {{ formattedDate(tweet.created_at) }}
-                </div>
+                    <label
+                        for="username"
+                        class="relative block rounded-md border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+                    >
+                        <input
+                            v-model="form.content"
+                            type="text"
+                            id="message"
+                            class="w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0"
+                            placeholder="Сообщение"
+                            required
+                        />
+
+                        <span
+                            class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs"
+                        >
+                            Сообщение
+                        </span>
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="w-fit inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
+                        :disabled="isLoadingSendMessage"
+                    >
+                        {{ isLoadingSendMessage ? 'Загрузка' : 'Отправить' }}
+                    </button>
+                </form>
             </div>
         </div>
+
+
+        <span class="relative flex justify-center my-2 md:my-4">
+            <div
+                class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-transparent bg-gradient-to-r from-transparent via-gray-500 to-transparent opacity-75"/>
+            <span class="relative z-10 bg-white px-6 text-2xl md:text-3xl xl:text-5xl font-light text-gray-800">
+                Твиты
+            </span>
+        </span>
+
+        <div v-if="tweets.data.length > 0" class="flex flex-col space-y-2">
+
+            <article
+                class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-lg sm:p-6"
+                v-for="tweet in tweets.data"
+            >
+                <div class="rounded-[10px] bg-white">
+                    <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                        {{ formattedDate(tweet.created_at) }}
+                    </time>
+
+
+                    <h3 class="mt-0.5 text-lg text-gray-900">
+                        Автор:
+                        <span class="font-medium underline">
+                            {{ tweet.username }}
+                        </span>
+                    </h3>
+
+                    <span class="mt-0.5 text-lg text-gray-900">
+                        {{ tweet.content }}
+                    </span>
+
+
+                    <div class="mt-3 flex flex-wrap gap-1">
+                       <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                           {{ tweet.category }}
+                       </span>
+                    </div>
+                </div>
+            </article>
+        </div>
+
         <h3 v-else class="text-center text-3xl">Твитов пока нет!</h3>
 
-        <button
-            v-if="tweets.last_page > page"
-            @click.prevent="showMoreMessages"
-            class="mt-2 p-1 border-black border-2 btn btn-primary block mx-auto"
-        >
-            {{isLoadingTweets ? 'Загрузка' : 'Больше' }}
-        </button>
+        <div class="flex justify-center">
+            <button
+                v-if="tweets.last_page > page"
+                @click.prevent="showMoreMessages"
+                :disabled="isLoadingTweets"
+                class="mt-2 md:mt-4 inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
+            >
+                {{ isLoadingTweets ? 'Загрузка' : 'Больше' }}
+            </button>
+        </div>
 
     </MainLayout>
 </template>
