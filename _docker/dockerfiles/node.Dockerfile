@@ -8,4 +8,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl
 
-ENTRYPOINT ["npm"]
+COPY ./package.json .
+COPY ./package-lock.json .
+
+RUN npm install
+
+COPY . .

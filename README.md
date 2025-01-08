@@ -23,10 +23,15 @@ docker-compose run --rm artisan migrate --seed
 ```bash
 docker-compose run --rm npm install
 ```
-
+--------------------------
 ```bash
 docker-compose run --rm npm run build
 ```
+↓ ДЛЯ HOT RELOAD ↓
+```bash
+docker-compose up npm-dev
+```
+----------------------
 
 Перейти по адресу http://localhost:8000/
 
