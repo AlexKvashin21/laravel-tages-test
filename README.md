@@ -9,10 +9,6 @@
 Скопировать .env.example в .env
 
 ```bash
-docker-compose up nginx -d
-```
-
-```bash
 docker-compose run --rm composer install
 ```
 
@@ -26,6 +22,10 @@ docker-compose run --rm npm install
 
 ```bash
 docker-compose run --rm npm run build
+```
+
+```bash
+docker-compose up nginx -d
 ```
 
 Перейти по адресу http://localhost:8000/
