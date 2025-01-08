@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\Services\CategoryServiceContract;
 use App\Filters\CategoryFilter;
 use App\Http\Requests\Category\GetAllCategoriesRequest;
+use App\Http\Resources\CategoryResource;
 use Illuminate\Http\JsonResponse;
 
 class CategoryController extends Controller
@@ -27,6 +28,6 @@ class CategoryController extends Controller
 
         $categories = $this->service->list($filterCategory);
 
-        return response()->json($categories);
+        return response()->json(CategoryResource::collection($categories)->resolve());
     }
 }

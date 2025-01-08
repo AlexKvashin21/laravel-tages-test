@@ -25,25 +25,6 @@ class TweetController extends Controller
      * @param GetTweetsRequest $request
      * @return JsonResponse
      */
-    public function index(GetTweetsRequest $request): JsonResponse
-    {
-        $filterTweet = new TweetFilter([
-            ...$request->validated('filters') ?? []
-        ]);
-
-        $tweets = $this->service->paginatedList(
-            $filterTweet,
-            $request->validated('page') ?? 1,
-            $request->validated('per_page') ?? 10
-        );
-
-        return response()->json($tweets);
-    }
-
-    /**
-     * @param GetTweetsRequest $request
-     * @return JsonResponse
-     */
     public function list(GetTweetsRequest $request): JsonResponse
     {
         $filterTweet = new TweetFilter([
