@@ -1,12 +1,6 @@
-FROM node:20.8.0
+FROM node:20-slim
 
 WORKDIR /var/www/laravel
-
-RUN apt-get update && apt-get install -y \
-    vim \
-    zip \
-    unzip \
-    curl
 
 COPY ./package.json .
 COPY ./package-lock.json .

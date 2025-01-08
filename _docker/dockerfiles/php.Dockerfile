@@ -14,3 +14,7 @@ RUN pecl install -o -f redis \
 RUN pecl install xdebug-3.2.0 && docker-php-ext-enable xdebug
 
 COPY _docker/php/conf.d/* $PHP_INI_DIR/conf.d/
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

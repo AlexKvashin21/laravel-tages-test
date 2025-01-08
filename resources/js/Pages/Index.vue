@@ -187,7 +187,7 @@ onBeforeMount(async () => {
 
                     <button
                         type="submit"
-                        class="w-fit inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
+                        class="w-fit mx-auto sm:mx-0 inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
                         :disabled="isLoadingSendMessage"
                     >
                         {{ isLoadingSendMessage ? 'Загрузка' : 'Отправить' }}
