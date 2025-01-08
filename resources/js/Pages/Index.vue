@@ -132,8 +132,12 @@ onBeforeMount(async () => {
                         name="category"
                         id="category"
                         class="w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
+                        :disabled="categories.length < 1"
                     >
-                        <option :value="0" disabled selected hidden>
+                        <option v-if="categories.length < 1" :value="0" disabled selected hidden>
+                            Загрузка...
+                        </option>
+                        <option v-else :value="0" disabled selected hidden>
                             Выберите категорию
                         </option>
                         <option v-for="category in categories" :value="category.id">
